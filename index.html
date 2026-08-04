@@ -802,6 +802,42 @@
     </div>
   </div>
 
+  <!-- MODAL / ACTION SHEET: MENU MAIS (MOBILE) -->
+  <div class="modal-backdrop" id="modalMobileMenu">
+    <div class="modal modal-mobile-menu">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-bars"></i> Menu Completo</h3>
+        <button class="modal-close" data-close-modal="modalMobileMenu"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body mobile-menu-grid">
+        <button class="mobile-menu-card" data-view="cadastros">
+          <div class="mobile-menu-icon icon-purple"><i class="fa-solid fa-folder-plus"></i></div>
+          <span>Cadastros (Categorias)</span>
+        </button>
+        <button class="mobile-menu-card" data-view="paid-bills">
+          <div class="mobile-menu-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+          <span>Contas Pagas</span>
+        </button>
+        <button class="mobile-menu-card" data-view="calendar">
+          <div class="mobile-menu-icon icon-cyan"><i class="fa-solid fa-calendar-days"></i></div>
+          <span>Agenda / Calendário</span>
+        </button>
+        <button class="mobile-menu-card" data-view="reports">
+          <div class="mobile-menu-icon icon-pink"><i class="fa-solid fa-chart-line"></i></div>
+          <span>Relatórios & Gráficos</span>
+        </button>
+        <button class="mobile-menu-card" data-view="search">
+          <div class="mobile-menu-icon icon-amber"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <span>Pesquisa Global</span>
+        </button>
+        <button class="mobile-menu-card" data-view="settings">
+          <div class="mobile-menu-icon icon-purple"><i class="fa-solid fa-gear"></i></div>
+          <span>Configurações</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -811,20 +847,20 @@
       <i class="fa-solid fa-chart-pie"></i>
       <span>Início</span>
     </button>
-    <button class="mobile-nav-item" data-view="calendar">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Agenda</span>
-    </button>
     <button class="mobile-nav-item" data-view="bills">
       <i class="fa-solid fa-file-invoice-dollar"></i>
       <span>Contas</span>
+    </button>
+    <button class="mobile-nav-item" data-view="cadastros">
+      <i class="fa-solid fa-folder-plus"></i>
+      <span>Cadastros</span>
     </button>
     <button class="mobile-nav-item" data-view="receivables">
       <i class="fa-solid fa-hand-holding-dollar"></i>
       <span>Receber</span>
     </button>
-    <button class="mobile-nav-item" data-view="settings">
-      <i class="fa-solid fa-gear"></i>
+    <button class="mobile-nav-item" id="btnOpenMobileMenu">
+      <i class="fa-solid fa-bars"></i>
       <span>Mais</span>
     </button>
   </nav>

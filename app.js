@@ -236,7 +236,23 @@ function initNavigation() {
   mobileNavItems.forEach(item => {
     item.addEventListener('click', () => {
       const targetView = item.getAttribute('data-view');
-      switchView(targetView);
+      if (targetView) {
+        switchView(targetView);
+      }
+    });
+  });
+
+  document.getElementById('btnOpenMobileMenu')?.addEventListener('click', () => {
+    openModal('modalMobileMenu');
+  });
+
+  document.querySelectorAll('.mobile-menu-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const targetView = card.getAttribute('data-view');
+      closeModal('modalMobileMenu');
+      if (targetView) {
+        switchView(targetView);
+      }
     });
   });
 
