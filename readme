@@ -1,0 +1,204 @@
+
+## :book: Sobre o Projeto
+
+O **BillFlow** é uma plataforma web desenvolvida para substituir o controle de contas em papel por um sistema moderno, intuitivo e acessível.
+
+Além de organizar boletos e contas recorrentes, o sistema também permite controlar valores que o usuário tem para receber, como empréstimos, vendas fiadas ou qualquer outra dívida de terceiros.
+
+O objetivo é oferecer uma visão completa da situação financeira em um único lugar.
+
+---
+
+# :dart: Objetivos
+
+* Eliminar o uso de papel para controlar contas.
+* Evitar atrasos em pagamentos.
+* Centralizar todas as despesas mensais.
+* Controlar valores a receber.
+* Facilitar o planejamento financeiro.
+
+---
+
+# :sparkles: Funcionalidades
+
+## :house: Dashboard
+
+A página inicial apresenta um resumo financeiro com informações em tempo real.
+
+### Indicadores
+
+* Total de contas cadastradas
+* Contas pagas
+* Contas pendentes
+* Contas vencidas
+* Próxima conta a vencer
+* Dias restantes para o próximo vencimento
+* Valor total a pagar
+* Valor total pago
+* Valor total a receber
+* Valor já recebido
+* Quantidade de dívidas pendentes
+
+---
+
+# :date: Calendário
+
+Visualização mensal das movimentações.
+
+No calendário será possível visualizar:
+
+* Contas que vencem em cada dia
+* Contas já pagas
+* Contas vencidas
+* Valores a receber
+* Recebimentos previstos
+
+Cada evento terá uma cor diferente para facilitar a identificação.
+
+---
+
+# :page_facing_up: Contas
+
+O sistema já possui categorias padrão.
+
+## Categorias padrão
+
+* :bulb: Energia
+* :potable_water: Água
+* :globe_with_meridians: Internet
+* :mobile_phone: Celular
+* :fire: Gás
+* :credit_card: Cartão de Crédito
+
+O usuário também poderá criar categorias personalizadas.
+
+---
+
+# :heavy_plus_sign: Cadastro de Conta
+
+Cada conta poderá possuir:
+
+* Nome
+* Categoria
+* Empresa
+* Valor
+* Data de vencimento
+* Data de pagamento
+* Forma de pagamento
+* Recorrente (Mensal, Semanal, Anual)
+* Observações
+* Status
+
+Status disponíveis:
+
+* Pendente
+* Pago
+* Vencido
+* Cancelado
+
+---
+
+# :dollar: Valores a Receber
+
+O sistema também controla dinheiro que outras pessoas devem ao usuário.
+
+Cada registro poderá conter:
+
+* Nome da pessoa
+* Descrição
+* Valor
+* Data prevista para recebimento
+* Data do recebimento
+* Forma de pagamento
+* Observações
+* Status
+
+Status:
+
+* A receber
+* Recebido
+* Atrasado
+* Cancelado
+
+---
+
+# :bar_chart: Relatórios
+
+O usuário poderá visualizar:
+
+* Gastos por categoria
+* Gastos por mês
+* Gastos por ano
+* Valores pagos
+* Valores pendentes
+* Valores vencidos
+* Valores a receber
+* Valores recebidos
+* Histórico completo
+
+---
+
+# :mag_right: Pesquisa
+
+Permite pesquisar por:
+
+* Nome
+* Categoria
+* Empresa
+* Pessoa
+* Data
+* Status
+* Valor
+
+---
+
+# :gear: Configurações
+
+* Tema claro
+* Tema escuro
+* Idioma
+* Moeda
+* Backup
+* Exportação de dados
+* Perfil do usuário
+
+---
+
+# :rocket: Melhorias Futuras
+
+* Login com Google
+* Login com GitHub
+* Aplicativo Android
+* Aplicativo iOS
+* Sincronização em nuvem
+* Notificações por e-mail
+* Notificações por WhatsApp
+* Parcelamento de contas
+* Metas financeiras
+* Importação automática de boletos
+* Integração com bancos
+* Geração de gráficos
+* Controle de assinaturas mensais
+
+---
+
+# :tools: Tecnologias
+
+* MySQL
+* HTML5
+* CSS3
+* JavaScript
+* Bootstrap
+* Chart.js
+
+---
+
+# :page_facing_up: Licença
+
+Este projeto está licenciado sob a licença MIT.
+
+---
+
+# :man_technologist: Desenvolvedor
+
+Projeto desenvolvido pela equipe 

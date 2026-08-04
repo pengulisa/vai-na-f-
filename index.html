@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BillFlow - Gestão Financeira Inteligente</title>
+  <meta name="description" content="Plataforma de gestão financeira para controle de boletos, contas a pagar e valores a receber.">
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BillFlow">
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <span class="brand-name">BillFlow</span>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="dashboard">
+          <button type="button">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Dashboard</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="calendar">
+          <button type="button">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>Calendário</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="bills">
+          <button type="button">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Contas a Pagar</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="paid-bills">
+          <button type="button">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Contas Pagas</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="receivables">
+          <button type="button">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <span>Valores a Receber</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="reports">
+          <button type="button">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Relatórios</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="search">
+          <button type="button">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Pesquisa</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="cadastros">
+          <button type="button">
+            <i class="fa-solid fa-folder-plus"></i>
+            <span>Cadastros</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="settings">
+          <button type="button">
+            <i class="fa-solid fa-gear"></i>
+            <span>Configurações</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar">US</div>
+          <div class="user-info">
+            <span class="user-name">Usuário BillFlow</span>
+            <span class="user-role">Plano Pessoal</span>
+          </div>
+        </div>
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar Tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      
+      <!-- Header -->
+      <header class="top-header">
+        <div class="page-title-area">
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-bar-header">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="quickSearchInput" placeholder="Pesquisar contas, valores...">
+          </div>
+          <button class="btn btn-secondary btn-lg" id="btnQuickReceivable">
+            <i class="fa-solid fa-plus"></i> Recebimento
+          </button>
+          <button class="btn btn-primary btn-lg" id="btnQuickBill">
+            <i class="fa-solid fa-plus"></i> Nova Conta
+          </button>
+        </div>
+      </header>
+
+      <!-- Dynamic Content Body -->
+      <div class="content-body">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section active">
+          
+          <!-- Banner proxima conta a vencer -->
+          <div class="alert-banner" id="nextBillBanner">
+            <div class="alert-banner-content">
+              <div class="alert-banner-icon">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <div class="alert-banner-text">
+                <h4 id="bannerTitle">Próximo Vencimento: Carregando...</h4>
+                <p id="bannerSub">Restam X dias para o próximo vencimento</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnBannerAction">Pagar Agora</button>
+          </div>
+
+          <!-- 11 KPIs Grid as requested in README -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Total Cadastradas</span>
+                <div class="stat-card-icon icon-purple"><i class="fa-solid fa-list-check"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiTotalContas">0</div>
+              <div class="stat-card-sub">Contas no sistema</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Contas Pagas</span>
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiContasPagas">0</div>
+              <div class="stat-card-sub">Liquidadas este mês</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Contas Pendentes</span>
+                <div class="stat-card-icon icon-amber"><i class="fa-solid fa-clock"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiContasPendentes">0</div>
+              <div class="stat-card-sub">Aguardando pagamento</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Contas Vencidas</span>
+                <div class="stat-card-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiContasVencidas">0</div>
+              <div class="stat-card-sub">Atenção ao prazo</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Valor Total a Pagar</span>
+                <div class="stat-card-icon icon-red"><i class="fa-solid fa-money-bill-wave"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiValorAPagar">R$ 0,00</div>
+              <div class="stat-card-sub">Total de pendentes/vencidos</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Valor Total Pago</span>
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-square-check"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiValorPago">R$ 0,00</div>
+              <div class="stat-card-sub">Total já quitado</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Valor a Receber</span>
+                <div class="stat-card-icon icon-cyan"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiValorAReceber">R$ 0,00</div>
+              <div class="stat-card-sub">Entradas pendentes</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Valor Já Recebido</span>
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-vault"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiValorRecebido">R$ 0,00</div>
+              <div class="stat-card-sub">Entradas validadas</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Dívidas Pendentes</span>
+                <div class="stat-card-icon icon-pink"><i class="fa-solid fa-users"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiDividasPendentes">0</div>
+              <div class="stat-card-sub">Pessoas com débitos</div>
+            </div>
+          </div>
+
+          <!-- Dashboard Charts & Recent Lists -->
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Próximos Vencimentos</h3>
+                <button class="btn btn-secondary btn-sm" id="btnGoToBills">Ver Todas</button>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Conta</th>
+                      <th>Categoria</th>
+                      <th>Vencimento</th>
+                      <th>Valor</th>
+                      <th>Status</th>
+                      <th>Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashUpcomingTableBody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Resumo Financeiro</h3>
+              </div>
+              <div class="chart-container" style="height: 250px;">
+                <canvas id="dashDoughnutChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. CALENDAR VIEW -->
+        <section id="view-calendar" class="view-section">
+          <div class="card">
+            <div class="calendar-controls">
+              <div class="filter-group">
+                <button class="btn btn-secondary btn-sm" id="btnPrevMonth"><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+                <button class="btn btn-secondary btn-sm" id="btnTodayMonth">Hoje</button>
+                <button class="btn btn-secondary btn-sm" id="btnNextMonth">Próximo <i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+              <h3 class="calendar-month-title" id="calendarMonthLabel">Agosto 2026</h3>
+              <div class="filter-group">
+                <span class="badge badge-pending">● Pendente</span>
+                <span class="badge badge-paid">● Pago</span>
+                <span class="badge badge-overdue">● Vencido</span>
+                <span class="badge badge-receivable">● A Receber</span>
+              </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+              <!-- Grid columns created dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. CONTAS (BILLS) VIEW -->
+        <section id="view-bills" class="view-section">
+          <div class="toolbar">
+            <div class="filter-group">
+              <input type="text" id="billSearchInput" class="form-input" placeholder="Buscar por conta ou empresa...">
+              <select id="billCategoryFilter" class="form-select">
+                <option value="ALL">Todas as Categorias</option>
+              </select>
+              <select id="billStatusFilter" class="form-select">
+                <option value="ALL">Todos os Status</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Pago">Pago</option>
+                <option value="Vencido">Vencido</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-lg" id="btnOpenNewBillModal">
+              <i class="fa-solid fa-plus"></i> Cadastrar Conta
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome / Empresa</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
+                    <th>Recorrência</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="billsTableBody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.5. CONTAS PAGAS VIEW -->
+        <section id="view-paid-bills" class="view-section">
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Total de Contas Pagas</span>
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiPaidBillsCount">0</div>
+              <div class="stat-card-sub">Contas quitadas</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Valor Total Quitado</span>
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+              </div>
+              <div class="stat-card-value" id="kpiPaidBillsTotal">R$ 0,00</div>
+              <div class="stat-card-sub">Total pago no histórico</div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="filter-group">
+              <input type="text" id="paidBillSearchInput" class="form-input" placeholder="Buscar nas contas pagas...">
+              <select id="paidBillCategoryFilter" class="form-select">
+                <option value="ALL">Todas as Categorias</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome / Empresa</th>
+                    <th>Categoria</th>
+                    <th>Valor Pago</th>
+                    <th>Vencimento</th>
+                    <th>Data do Pagamento</th>
+                    <th>Forma de Pagamento</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="paidBillsTableBody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. VALORES A RECEBER VIEW -->
+        <section id="view-receivables" class="view-section">
+          <div class="toolbar">
+            <div class="filter-group">
+              <input type="text" id="receivableSearchInput" class="form-input" placeholder="Buscar por pessoa ou descrição...">
+              <select id="receivableStatusFilter" class="form-select">
+                <option value="ALL">Todos os Status</option>
+                <option value="A receber">A receber</option>
+                <option value="Recebido">Recebido</option>
+                <option value="Atrasado">Atrasado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-lg" id="btnOpenNewReceivableModal">
+              <i class="fa-solid fa-plus"></i> Registrar Valor a Receber
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>De Quem (Pessoa)</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data Prevista</th>
+                    <th>Data Recebimento</th>
+                    <th>Forma Pagto</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="receivablesTableBody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. RELATÓRIOS VIEW -->
+        <section id="view-reports" class="view-section">
+          <div class="toolbar">
+            <div class="filter-group">
+              <label class="form-label">Período:</label>
+              <select id="reportPeriodSelect" class="form-select">
+                <option value="month">Este Mês</option>
+                <option value="year">Este Ano</option>
+                <option value="all">Todo Histórico</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="card chart-card">
+              <h3 class="card-title" style="margin-bottom: 1rem;">Despesas por Categoria</h3>
+              <div class="chart-container">
+                <canvas id="chartCategory"></canvas>
+              </div>
+            </div>
+
+            <div class="card chart-card">
+              <h3 class="card-title" style="margin-bottom: 1rem;">Balanço: Pagar vs Receber</h3>
+              <div class="chart-container">
+                <canvas id="chartCompare"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. PESQUISA VIEW -->
+        <section id="view-search" class="view-section">
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <h3 class="card-title" style="margin-bottom: 1rem;">Filtro de Pesquisa Avançado</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Termo de Pesquisa</label>
+                <input type="text" id="advSearchQuery" class="form-input" placeholder="Digite nome, categoria, empresa ou pessoa...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tipo de Registro</label>
+                <select id="advSearchType" class="form-select">
+                  <option value="ALL">Todos (Contas e Recebimentos)</option>
+                  <option value="BILL">Somente Contas a Pagar</option>
+                  <option value="RECEIVABLE">Somente Valores a Receber</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title" style="margin-bottom: 1rem;">Resultados Encontrados</h3>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Título / Origem</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="searchResultsTableBody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6.5. CADASTROS VIEW -->
+        <section id="view-cadastros" class="view-section">
+          <div class="toolbar">
+            <div class="filter-group">
+              <input type="text" id="categorySearchInput" class="form-input" placeholder="Buscar categoria...">
+            </div>
+            <button class="btn btn-primary btn-lg" id="btnOpenNewCategoryModal">
+              <i class="fa-solid fa-plus"></i> Nova Categoria
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Gerenciamento de Categorias</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Ícone / Emoji</th>
+                    <th>Nome da Categoria</th>
+                    <th>Contas Vinculadas</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="categoriesTableBody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. CONFIGURAÇÕES VIEW -->
+        <section id="view-settings" class="view-section">
+          <div class="dashboard-grid">
+            <div class="card">
+              <h3 class="card-title" style="margin-bottom: 1.5rem;">Preferências do Sistema</h3>
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label">Tema da Interface</label>
+                <select id="settingTheme" class="form-select">
+                  <option value="dark">🌙 Escuro (Padrão)</option>
+                  <option value="light">☀️ Claro</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label">Moeda Padrão</label>
+                <select id="settingCurrency" class="form-select">
+                  <option value="BRL">BRL (R$)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label">Idioma</label>
+                <select id="settingLanguage" class="form-select">
+                  <option value="pt-BR">Português (Brasil)</option>
+                  <option value="en-US">English</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="card-title" style="margin-bottom: 1.5rem;">Backup e Dados</h3>
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Exporte todos os seus dados em formato JSON ou CSV para segurança, ou limpe a base de dados.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="btn btn-secondary" id="btnExportJSON">
+                  <i class="fa-solid fa-download"></i> Exportar Dados (JSON)
+                </button>
+                <button class="btn btn-secondary" id="btnExportCSV">
+                  <i class="fa-solid fa-file-csv"></i> Exportar Contas (CSV)
+                </button>
+                <button class="btn btn-danger" id="btnResetDemoData">
+                  <i class="fa-solid fa-trash-can"></i> Limpar Todos os Dados
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODAL: CADASTRAR/EDITAR CONTA -->
+  <div class="modal-backdrop" id="modalBill">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalBillTitle">Cadastrar Conta</h3>
+        <button class="modal-close" data-close-modal="modalBill"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="formBill">
+        <input type="hidden" id="billId">
+        <div class="modal-body form-grid">
+          <div class="form-group full-width">
+            <label class="form-label">Nome da Conta *</label>
+            <input type="text" id="billName" class="form-input" placeholder="Nome da conta" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Categoria *</label>
+            <select id="billCategory" class="form-select" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Empresa</label>
+            <input type="text" id="billCompany" class="form-input" placeholder="Nome da empresa">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valor (R$) *</label>
+            <input type="number" step="0.01" id="billAmount" class="form-input" placeholder="0,00" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data de Vencimento *</label>
+            <input type="date" id="billDueDate" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data de Pagamento</label>
+            <input type="date" id="billPaidDate" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Forma de Pagamento</label>
+            <select id="billPaymentMethod" class="form-select">
+              <option value="PIX">PIX</option>
+              <option value="Boleto">Boleto Bancário</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Débito Automático">Débito Automático</option>
+              <option value="Dinheiro">Dinheiro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Recorrência</label>
+            <select id="billRecurrence" class="form-select">
+              <option value="Nenhuma">Única / Nenhuma</option>
+              <option value="Mensal">Mensal</option>
+              <option value="Semanal">Semanal</option>
+              <option value="Anual">Anual</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parcela Atual</label>
+            <input type="number" min="1" id="billInstallmentCurrent" class="form-input" placeholder="Ex: 4" value="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Total de Parcelas</label>
+            <input type="number" min="1" id="billInstallmentTotal" class="form-input" placeholder="Ex: 10" value="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status *</label>
+            <select id="billStatus" class="form-select" required>
+              <option value="Pendente">Pendente</option>
+              <option value="Pago">Pago</option>
+              <option value="Vencido">Vencido</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Observações</label>
+            <textarea id="billNotes" class="form-input" rows="2" placeholder="Observações"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modalBill">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Conta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CADASTRAR/EDITAR VALOR A RECEBER -->
+  <div class="modal-backdrop" id="modalReceivable">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalReceivableTitle">Registrar Valor a Receber</h3>
+        <button class="modal-close" data-close-modal="modalReceivable"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="formReceivable">
+        <input type="hidden" id="recId">
+        <div class="modal-body form-grid">
+          <div class="form-group">
+            <label class="form-label">Nome da Pessoa *</label>
+            <input type="text" id="recPerson" class="form-input" placeholder="Nome da pessoa" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valor (R$) *</label>
+            <input type="number" step="0.01" id="recAmount" class="form-input" placeholder="0,00" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Descrição / Motivo</label>
+            <input type="text" id="recDescription" class="form-input" placeholder="Descrição ou motivo">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data Prevista *</label>
+            <input type="date" id="recExpectedDate" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data do Recebimento</label>
+            <input type="date" id="recReceivedDate" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Forma de Pagamento</label>
+            <select id="recPaymentMethod" class="form-select">
+              <option value="PIX">PIX</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Transferência">Transferência</option>
+              <option value="Cartão">Cartão</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parcela Atual</label>
+            <input type="number" min="1" id="recInstallmentCurrent" class="form-input" placeholder="Ex: 4" value="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Total de Parcelas</label>
+            <input type="number" min="1" id="recInstallmentTotal" class="form-input" placeholder="Ex: 10" value="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status *</label>
+            <select id="recStatus" class="form-select" required>
+              <option value="A receber">A receber</option>
+              <option value="Recebido">Recebido</option>
+              <option value="Atrasado">Atrasado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Observações</label>
+            <textarea id="recNotes" class="form-input" rows="2" placeholder="Detalhes do acordo..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modalReceivable">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Registro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CADASTRAR/EDITAR CATEGORIA -->
+  <div class="modal-backdrop" id="modalCategory">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalCategoryTitle">Nova Categoria</h3>
+        <button class="modal-close" data-close-modal="modalCategory"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="formCategory">
+        <input type="hidden" id="categoryId">
+        <div class="modal-body form-grid">
+          <div class="form-group">
+            <label class="form-label">Nome da Categoria *</label>
+            <input type="text" id="categoryName" class="form-input" placeholder="Nome da categoria" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ícone / Emoji</label>
+            <input type="text" id="categoryIcon" class="form-input" placeholder="Ex: 💡, 🌐, 💳, 🛒">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="modalCategory">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Categoria</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-item active" data-view="dashboard">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Início</span>
+    </button>
+    <button class="mobile-nav-item" data-view="calendar">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Agenda</span>
+    </button>
+    <button class="mobile-nav-item" data-view="bills">
+      <i class="fa-solid fa-file-invoice-dollar"></i>
+      <span>Contas</span>
+    </button>
+    <button class="mobile-nav-item" data-view="receivables">
+      <i class="fa-solid fa-hand-holding-dollar"></i>
+      <span>Receber</span>
+    </button>
+    <button class="mobile-nav-item" data-view="settings">
+      <i class="fa-solid fa-gear"></i>
+      <span>Mais</span>
+    </button>
+  </nav>
+
+  <!-- Main JavaScript App -->
+  <script src="app.js"></script>
+</body>
+</html>
