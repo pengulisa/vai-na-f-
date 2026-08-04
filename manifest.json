@@ -1,4 +1,5 @@
 {
+  "id": "com.billflow.app",
   "name": "BillFlow - Gestão Financeira",
   "short_name": "BillFlow",
   "description": "Plataforma de gestão financeira para controle de boletos, contas a pagar e valores a receber.",
